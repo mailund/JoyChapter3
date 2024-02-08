@@ -25,7 +25,6 @@ resize(struct hash_table *table, unsigned int new_size)
     table->bins[i] = empty_bin;
   }
   table->size = new_size;
-  table->active = table->used = 0;
 
   // the move the values from the old bins to the new, using the table's
   // insertion function
@@ -40,7 +39,7 @@ resize(struct hash_table *table, unsigned int new_size)
 }
 
 struct hash_table *
-new_table(unsigned int size, double load_limit)
+new_table(unsigned int size)
 {
   struct hash_table *table = malloc(sizeof *table);
   table->size = size;
@@ -52,8 +51,6 @@ new_table(unsigned int size, double load_limit)
   }
 
   table->size = size;
-  table->active = table->used = 0;
-  table->load_limit = load_limit;
   return table;
 }
 
@@ -94,17 +91,7 @@ void
 insert_key(struct hash_table *table, unsigned int key)
 {
   struct bin *bin = find_key_or_empty(table, key);
-  if (bin->key == key)
-    return; // Nothing further to do
-  if (!bin->in_probe) {
-    // We now will use one more bin
-    table->used++;
-  }
-  table->active++; // We definitely have one more active
   *bin = (struct bin){.in_probe = true, .is_empty = false, .key = key};
-
-  if (table->used > table->load_limit * table->size)
-    resize(table, table->size * 2);
 }
 
 bool
@@ -123,8 +110,6 @@ delete_key(struct hash_table *table, unsigned int key)
   if (bin->key != key)
     return;             // Nothing more to do
   bin->is_empty = true; // Delete the bin
-  if (table->active < table->load_limit / 4 * table->size)
-    resize(table, table->size / 2);
 }
 
 void

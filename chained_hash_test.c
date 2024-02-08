@@ -9,7 +9,7 @@
 static unsigned int
 random_key()
 {
-  unsigned int key = (unsigned int)random();
+  unsigned int key = (unsigned int)rand();
   return key;
 }
 

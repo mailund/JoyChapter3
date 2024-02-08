@@ -9,29 +9,26 @@
 static unsigned int
 random_key()
 {
-  unsigned int key = (unsigned int)random();
+  unsigned int key = (unsigned int)rand();
   return key;
 }
 
 int
 main(int argc, const char *argv[])
 {
-  if (argc < 2) {
-    printf("Usage: %s no_elements [load-limit]\n", argv[0]);
+  if (argc != 2) {
+    printf("Usage: %s no_elements\n", argv[0]);
     return EXIT_FAILURE;
   }
 
-  double load_limit = 0.5;
   int no_elms = atoi(argv[1]);
-  if (argc > 2)
-    load_limit = atof(argv[2]);
 
   unsigned int *keys = malloc(no_elms * sizeof *keys);
   for (int i = 0; i < no_elms; ++i) {
     keys[i] = random_key();
   }
 
-  struct hash_table *table = new_table(2, load_limit);
+  struct hash_table *table = new_table(1 << 10);
   clock_t start = clock();
   for (int i = 0; i < no_elms; ++i) {
     printf("Inserting key %u\n", keys[i]);

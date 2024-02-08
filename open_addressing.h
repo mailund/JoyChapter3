@@ -16,15 +16,10 @@ struct bin {
 struct hash_table {
   struct bin *bins;
   unsigned int size;
-  unsigned int used;
-  unsigned int active;
-  double load_limit;
-  // only used in primes code, but we share the header, so...
-  unsigned int primes_idx;
 };
 
 struct hash_table *
-new_table(unsigned int size, double load_limit);
+new_table(unsigned int size);
 void
 delete_table(struct hash_table *table);
 
