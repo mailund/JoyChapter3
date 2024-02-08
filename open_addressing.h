@@ -7,22 +7,36 @@
 #include <stdlib.h>
 
 struct bin {
-	int is_free : 1;
-	int is_deleted : 1;
-	uint32_t key;
+  int in_probe : 1; // The bin is part of a sequence of used bins
+  int is_empty : 1; // The bin does not contain a value (but might still be in
+                    // a probe sequence)
+  unsigned int key;
 };
 
 struct hash_table {
-	struct bin *table;
-    size_t size;
+  struct bin *bins;
+  unsigned int size;
+  unsigned int used;
+  unsigned int active;
+  double load_limit;
+  // only used in primes code, but we share the header, so...
+  unsigned int primes_idx;
 };
 
-struct hash_table *empty_table(size_t size);
-void delete_table(struct hash_table *table);
+struct hash_table *
+new_table(unsigned int size, double load_limit);
+void
+delete_table(struct hash_table *table);
 
-void insert_key   (struct hash_table *table, uint32_t key);
-bool contains_key (struct hash_table *table, uint32_t key);
-void delete_key   (struct hash_table *table, uint32_t key);
+void
+insert_key(struct hash_table *table, unsigned int key);
+bool
+contains_key(struct hash_table *table, unsigned int key);
+void
+delete_key(struct hash_table *table, unsigned int key);
 
+// For debugging
+void
+print_table(struct hash_table *table);
 
 #endif

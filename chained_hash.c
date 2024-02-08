@@ -1,48 +1,62 @@
 
 #include "chained_hash.h"
-#include "linked_lists.h"
+
 #include <stdlib.h>
 
-struct hash_table *empty_table(size_t size)
+#include "linked_lists.h"
+
+LIST
+get_key_bin(struct hash_table *table, unsigned int key)
 {
-    struct hash_table *table =
-      (struct hash_table*)malloc(sizeof(struct hash_table));
-    table->table =
-      (struct linked_list **)malloc(size * sizeof(struct linked_list *));
-    for (size_t i = 0; i < size; ++i) {
-        table->table[i] = new_linked_list();
-    }
-    table->size = size;
-    return table;
+  // table->table is an array of LIST_HEAD i.e. an array of struct link *,
+  // which makes table->table plus any offset a struct link **, i.e., a LIST.
+  unsigned int mask = table->size - 1;
+  unsigned int index = key & mask;
+  return table->bins + index;
 }
 
-void delete_table(struct hash_table *table)
+struct hash_table *
+new_table(unsigned int size)
 {
-    for (size_t i = 0; i < table->size; ++i) {
-        delete_linked_list(table->table[i]);
-    }
-    free(table->table);
-    free(table);
+  struct hash_table *table = malloc(sizeof *table);
+  table->bins = malloc(size * sizeof *table->bins);
+  table->size = size;
+  for (LIST bin = table->bins; bin < table->bins + table->size; bin++) {
+    init_linked_list(bin);
+  }
+  return table;
 }
 
-void insert_key(struct hash_table *table, uint32_t key)
+void
+delete_table(struct hash_table *table)
 {
-    uint32_t mask = table->size - 1;
-    uint32_t index = key & mask;
-    if (!contains_element(table->table[index], key))
-        add_element(table->table[index], key);
+  for (LIST bin = table->bins; bin < table->bins + table->size; bin++) {
+    delete_linked_list(bin);
+  }
+  free(table->bins);
+  free(table);
 }
 
-bool contains_key(struct hash_table *table, uint32_t key)
+void
+insert_key(struct hash_table *table, unsigned int key)
 {
-    uint32_t mask = table->size - 1;
-    uint32_t index = key & mask;
-    return contains_element(table->table[index], key);
+  LIST bin = get_key_bin(table, key);
+  if (!contains_element(bin, key)) { // Avoid duplications
+    add_element(bin, key);
+  }
 }
 
-void delete_key(struct hash_table *table, uint32_t key)
+bool
+contains_key(struct hash_table *table, unsigned int key)
 {
-    uint32_t mask = table->size - 1;
-    uint32_t index = key & mask;
-    delete_element(table->table[index], key);
+  return contains_element(get_key_bin(table, key), key);
+}
+
+void
+delete_key(struct hash_table *table, unsigned int key)
+{
+  LIST bin = get_key_bin(table, key);
+  if (contains_element(bin, key)) {
+    delete_element(bin, key);
+  }
 }
