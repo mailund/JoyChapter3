@@ -1,4 +1,5 @@
-Makefile.bak
+makebuild
+xcodebuild
 chained_hash_test
 linked_lists_test
 open_addressing_test
