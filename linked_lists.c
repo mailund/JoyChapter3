@@ -11,13 +11,19 @@ new_owned_list()
   return ptr;
 }
 
+static void
+free_head(LIST list)
+{
+  struct link *next = (*list)->next;
+  free(*list);
+  *list = next;
+}
+
 void
 free_list(LIST list)
 {
   while (*list) {
-    struct link *next = (*list)->next;
-    free(*list);
-    *list = next;
+    free_head(list);
   }
 }
 
@@ -58,15 +64,8 @@ find_key(LIST list, unsigned int key)
 void
 delete_element(LIST list, unsigned int key)
 {
-  struct link **prev_ref = find_key(list, key);
-  if (prev_ref) {
-    // Cut out *prev_ref as this is the link that contains
-    // key. First, save its next, then we can free it, and
-    // finally update the list by updating the pointer
-    // that previously pointed to the now deleted link.
-    struct link *next = (*prev_ref)->next;
-    free(*prev_ref);
-    *prev_ref = next;
+  if ((list = find_key(list, key))) {
+    free_head(list);
   }
 }
 
