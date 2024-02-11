@@ -9,13 +9,16 @@ struct link {
   unsigned int key;
   struct link *next;
 };
-typedef struct link *LIST_HEAD;
-typedef LIST_HEAD *LIST;
+typedef struct link **LIST;
 
+#define EMPTY_LIST &((struct link *){NULL})
+
+LIST
+new_owned_list();
 void
-init_linked_list(LIST list);
+free_owned_list(LIST list);
 void
-delete_linked_list(LIST list);
+free_list(LIST list);
 
 void
 add_element(LIST list, unsigned int key);

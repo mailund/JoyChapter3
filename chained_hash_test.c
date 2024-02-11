@@ -48,7 +48,7 @@ main(int argc, const char *argv[])
   printf("%g\n", elapsed_time);
 
   free(keys);
-  delete_table(table);
+  free_table(table);
 
   return EXIT_SUCCESS;
 }

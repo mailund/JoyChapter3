@@ -1,14 +1,31 @@
 
 #include "linked_lists.h"
 
-#include <assert.h>
 #include <stdio.h>
 
-void
-init_linked_list(LIST list)
+LIST
+new_owned_list()
 {
-  assert(list);
-  *list = NULL;
+    struct link **ptr = malloc(sizeof *ptr);
+    *ptr = NULL;
+    return ptr;
+}
+
+void
+free_list(LIST list)
+{
+  while (*list) {
+    struct link *next = (*list)->next;
+    free(*list);
+    *list = next;
+  }
+}
+
+void
+free_owned_list(LIST list)
+{
+  free_list(list);
+  free(list);
 }
 
 struct link *
@@ -17,16 +34,6 @@ new_link(unsigned int key, struct link *next)
   struct link *link = malloc(sizeof *link);
   *link = (struct link){.key = key, .next = next};
   return link;
-}
-
-void
-delete_linked_list(LIST list)
-{
-  while (*list) {
-    struct link *next = (*list)->next;
-    free(*list);
-    *list = next;
-  }
 }
 
 void

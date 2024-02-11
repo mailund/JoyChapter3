@@ -22,16 +22,16 @@ new_table(unsigned int size)
   table->bins = malloc(size * sizeof *table->bins);
   table->size = size;
   for (LIST bin = table->bins; bin < table->bins + table->size; bin++) {
-    init_linked_list(bin);
+    *bin = NULL;
   }
   return table;
 }
 
 void
-delete_table(struct hash_table *table)
+free_table(struct hash_table *table)
 {
   for (LIST bin = table->bins; bin < table->bins + table->size; bin++) {
-    delete_linked_list(bin);
+    free_list(bin);
   }
   free(table->bins);
   free(table);
