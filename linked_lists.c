@@ -6,9 +6,9 @@
 LIST
 new_owned_list()
 {
-    struct link **ptr = malloc(sizeof *ptr);
-    *ptr = NULL;
-    return ptr;
+  struct link **ptr = malloc(sizeof *ptr);
+  *ptr = NULL;
+  return ptr;
 }
 
 void
@@ -45,18 +45,12 @@ add_element(LIST list, unsigned int key)
   *list = new_link(key, *list);
 }
 
-// Get the reference of (pointer to) the pointer to the link that
-// contains the key. That is, get a pointer to the 'next' pointer
-// in the previous link (if there is one) or a pointer to the head
-// of the list. From that pointer, we can access both the link
-// that holds the key, and also update the pointer to the link that
-// holds the link to delete the link.
-struct link **
-ref_to_link(LIST list, unsigned int key)
+LIST
+find_key(LIST list, unsigned int key)
 {
-  for (struct link **ref = list; *ref; ref = &(*ref)->next) {
-    if ((*ref)->key == key)
-      return ref;
+  for (; *list; list = &(*list)->next) {
+    if ((*list)->key == key)
+      return list;
   }
   return NULL;
 }
@@ -64,7 +58,7 @@ ref_to_link(LIST list, unsigned int key)
 void
 delete_element(LIST list, unsigned int key)
 {
-  struct link **prev_ref = ref_to_link(list, key);
+  struct link **prev_ref = find_key(list, key);
   if (prev_ref) {
     // Cut out *prev_ref as this is the link that contains
     // key. First, save its next, then we can free it, and
@@ -79,5 +73,5 @@ delete_element(LIST list, unsigned int key)
 bool
 contains_element(LIST list, unsigned int key)
 {
-  return ref_to_link(list, key) != 0;
+  return find_key(list, key) != 0;
 }

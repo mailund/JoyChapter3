@@ -8,8 +8,6 @@
 LIST
 get_key_bin(struct hash_table *table, unsigned int key)
 {
-  // table->table is an array of LIST_HEAD i.e. an array of struct link *,
-  // which makes table->table plus any offset a struct link **, i.e., a LIST.
   unsigned int mask = table->size - 1;
   unsigned int index = key & mask;
   return table->bins + index;
