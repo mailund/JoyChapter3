@@ -7,10 +7,10 @@
 #include <stdlib.h>
 
 struct bin {
+  unsigned int key;
   int in_probe : 1; // The bin is part of a sequence of used bins
   int is_empty : 1; // The bin does not contain a value (but might still be in
                     // a probe sequence)
-  unsigned int key;
 };
 
 struct hash_table {
@@ -21,7 +21,7 @@ struct hash_table {
 struct hash_table *
 new_table(unsigned int size);
 void
-delete_table(struct hash_table *table);
+free_table(struct hash_table *table);
 
 void
 insert_key(struct hash_table *table, unsigned int key);

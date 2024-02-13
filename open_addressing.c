@@ -11,33 +11,6 @@ p(unsigned int k, unsigned int i, unsigned int m)
   return (k + i) & (m - 1);
 }
 
-static void
-resize(struct hash_table *table, unsigned int new_size)
-{
-  // remember the old bins until we have moved them.
-  struct bin *old_bins = table->bins;
-  unsigned int old_size = table->size;
-
-  // Update table so it now contains the new bins (that are empty)
-  table->bins = malloc(new_size * sizeof *table->bins);
-  struct bin empty_bin = {.in_probe = false, .is_empty = true};
-  for (unsigned int i = 0; i < new_size; i++) {
-    table->bins[i] = empty_bin;
-  }
-  table->size = new_size;
-
-  // the move the values from the old bins to the new, using the table's
-  // insertion function
-  for (struct bin *bin = old_bins; bin != old_bins + old_size; bin++) {
-    if (bin->in_probe || !bin->is_empty) {
-      insert_key(table, bin->key);
-    }
-  }
-
-  // finally, free memory for old bins
-  free(old_bins);
-}
-
 struct hash_table *
 new_table(unsigned int size)
 {
@@ -55,7 +28,7 @@ new_table(unsigned int size)
 }
 
 void
-delete_table(struct hash_table *table)
+free_table(struct hash_table *table)
 {
   free(table->bins);
   free(table);
