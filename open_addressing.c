@@ -6,9 +6,9 @@
 #include <stdlib.h>
 
 static unsigned int
-p(unsigned int k, unsigned int i, unsigned int m)
+p(unsigned int key, unsigned int i, unsigned int m)
 {
-  return (k + i) & (m - 1);
+  return (key + i) & (m - 1);
 }
 
 struct hash_table *
@@ -47,13 +47,13 @@ find_key(struct hash_table *table, unsigned int key)
   assert(false);
 }
 
-// Find the bin containing key or the first empty bin in its probe.
+// Find the first empty bin in its probe.
 struct bin *
-find_key_or_empty(struct hash_table *table, unsigned int key)
+find_empty(struct hash_table *table, unsigned int key)
 {
   for (unsigned int i = 0; i < table->size; i++) {
     struct bin *bin = table->bins + p(key, i, table->size);
-    if (bin->key == key || bin->is_empty || !bin->in_probe)
+    if (bin->is_empty)
       return bin;
   }
   // The table is full. We cannot handle that yet!
@@ -63,8 +63,10 @@ find_key_or_empty(struct hash_table *table, unsigned int key)
 void
 insert_key(struct hash_table *table, unsigned int key)
 {
-  struct bin *bin = find_key_or_empty(table, key);
-  *bin = (struct bin){.in_probe = true, .is_empty = false, .key = key};
+  if (!contains_key(table, key)) {
+    *find_empty(table, key) =
+        (struct bin){.in_probe = true, .is_empty = false, .key = key};
+  }
 }
 
 bool
@@ -77,12 +79,7 @@ contains_key(struct hash_table *table, unsigned int key)
 void
 delete_key(struct hash_table *table, unsigned int key)
 {
-  // This will do nothing if we are at the end of the probe but delete if we are
-  // inside a probe
-  struct bin *bin = find_key(table, key);
-  if (bin->key != key)
-    return;             // Nothing more to do
-  bin->is_empty = true; // Delete the bin
+  find_key(table, key)->is_empty = true;
 }
 
 void
